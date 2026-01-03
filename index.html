@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Hospital Appointment Booking</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<h1 style="text-align:center;color:#2c3e50;">
+  🏥 Hospital Appointment Booking System
+</h1>
+
+<!-- LOGIN PAGE -->
+<div id="loginPage" class="card">
+  <h2>Patient Login</h2>
+  <input type="text" id="loginName" placeholder="Enter Name">
+  <input type="email" id="loginEmail" placeholder="Enter Email">
+  <button onclick="login()">Login</button>
+</div>
+
+<!-- APPOINTMENT PAGE -->
+<div id="appointmentPage" class="card" style="display:none;">
+  <h2>Book Appointment</h2>
+
+  <input type="text" id="name" placeholder="Patient Name">
+  <input type="email" id="email" placeholder="Email">
+
+  <!-- Department -->
+  <select id="department" onchange="updateDoctors()">
+    <option value="">Select Department</option>
+    <option>Cardiology</option>
+    <option>Orthopedics</option>
+    <option>Neurology</option>
+    <option>Dermatology</option>
+  </select>
+
+  <!-- Doctor -->
+  <select id="doctor">
+    <option value="">Select Doctor</option>
+  </select>
+
+  <!-- Date & Time -->
+  <input type="date" id="date">
+  <input type="time" id="time">
+
+  <!-- Payment -->
+  <label>Payment Method:</label>
+  <select id="payment">
+    <option>Cash</option>
+    <option>Card</option>
+  </select>
+
+  <!-- Rating -->
+  <label>Doctor Rating:</label>
+  <select id="rating">
+    <option>5 ⭐⭐⭐⭐⭐</option>
+    <option>4 ⭐⭐⭐⭐</option>
+    <option>3 ⭐⭐⭐</option>
+    <option>2 ⭐⭐</option>
+    <option>1 ⭐</option>
+  </select>
+
+  <!-- Review -->
+  <textarea id="review" placeholder="Write your review"></textarea>
+
+  <!-- Hospital Selection -->
+  <label>Hospital Location</label>
+  <select id="hospital" onchange="changeHospital()">
+    <option value="">Select Hospital</option>
+    <option value="SVIMS Hospital">SVIMS Hospital</option>
+    <option value="Apollo Hospital">Apollo Hospital</option>
+    <option value="King George Hospital">King George Hospital</option>
+    <option value="Srikara Hospital">Srikara Hospital</option>
+    <option value="Ruiya Hospital">Ruiya Hospital</option>
+  </select>
+  <h2>Hospital Location</h2>
+
+<iframe
+  src="https://www.google.com/maps?q=Tirupati+Hospital&output=embed"
+  width="100%"
+  height="300"
+  style="border:0;"
+  allowfullscreen=""
+  loading="lazy">
+</iframe>
+
+  <button onclick="confirmAppointment()">Confirm Appointment</button>
+</div>
+
+<!-- CONFIRMATION -->
+<div id="confirmation" class="card" style="display:none;">
+  <h2>✅ Appointment Confirmed</h2>
+  <p id="confMsg"></p>
+</div>
+
+<script src="script.js"></script>
+<script
+  src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap"
+  async defer>
+</script>
+
+</body>
+</html>
