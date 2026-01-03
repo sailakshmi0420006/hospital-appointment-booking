@@ -97,7 +97,7 @@ function confirmAppointment() {
   });
 
   // 🔴 IMPORTANT: Replace URL below
-  fetch("https://script.google.com/macros/s/AKfycbzMquLET5wwp5Lw66xtSBJirLgWE2I8jI-Afbsm-SUgLSkdgfmPFOtNDbQlKTbJ9KnG7g/exec", {
+  fetch("https://script.google.com/macros/s/AKfycbzpHbUva9nNEwmk79YOCzDXkdr8dMJqihTlsf5QVMCeA3uftXg8XyHo_C1jtAGoHnj8EQ/exec", {
     method: "POST",
     mode: "no-cors",
     body: JSON.stringify(data)
