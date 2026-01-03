@@ -1,103 +1,452 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Hospital Appointment Booking</title>
-  <link rel="stylesheet" href="style.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #dc2626 0%, #ffffff 50%, #2563eb 100%);
+      min-height: 100vh;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    h1 {
+      color: white;
+      text-align: center;
+      margin: 20px 0 30px 0;
+      font-size: 2em;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .card {
+      background: white;
+      border-radius: 20px;
+      padding: 40px;
+      max-width: 500px;
+      width: 100%;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card h2 {
+      color: #2c3e50;
+      margin-bottom: 25px;
+      font-size: 1.8em;
+      text-align: center;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      color: #555;
+      font-weight: 600;
+      margin-bottom: 8px;
+      font-size: 0.95em;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="date"],
+    input[type="time"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 14px;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      font-size: 16px;
+      transition: all 0.3s ease;
+      font-family: inherit;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    button {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 1.1em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    .rating-stars {
+      display: flex;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .star {
+      font-size: 2em;
+      cursor: pointer;
+      color: #ddd;
+      transition: color 0.2s;
+    }
+
+    .star.active {
+      color: #ffd700;
+    }
+
+    .payment-options {
+      display: flex;
+      gap: 15px;
+      margin-top: 8px;
+    }
+
+    .payment-option {
+      flex: 1;
+      padding: 15px;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: 600;
+    }
+
+    .payment-option:hover {
+      border-color: #667eea;
+    }
+
+    .payment-option.selected {
+      border-color: #667eea;
+      background: #f0f4ff;
+      color: #667eea;
+    }
+
+    iframe {
+      border-radius: 10px;
+      margin-top: 10px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .confirmation-icon {
+      text-align: center;
+      font-size: 4em;
+      margin-bottom: 20px;
+    }
+
+    #confMsg {
+      background: #f0f4ff;
+      padding: 20px;
+      border-radius: 10px;
+      border-left: 4px solid #667eea;
+      line-height: 1.8;
+      color: #2c3e50;
+    }
+
+    .logout-btn {
+      background: #e74c3c;
+      margin-top: 20px;
+    }
+
+    .logout-btn:hover {
+      box-shadow: 0 10px 25px rgba(231, 76, 60, 0.4);
+    }
+
+    @media (max-width: 600px) {
+      .card {
+        padding: 25px;
+      }
+      
+      h1 {
+        font-size: 1.5em;
+      }
+    }
+  </style>
 </head>
 
 <body>
 
-<h1 style="text-align:center;color:#2c3e50;">
-  🏥 Hospital Appointment Booking System
-</h1>
+<h1>🏥 Hospital Appointment Booking System</h1>
 
 <!-- LOGIN PAGE -->
 <div id="loginPage" class="card">
   <h2>Patient Login</h2>
-  <input type="text" id="loginName" placeholder="Enter Name">
-  <input type="email" id="loginEmail" placeholder="Enter Email">
+  <div class="form-group">
+    <label>Full Name</label>
+    <input type="text" id="loginName" placeholder="Enter your full name">
+  </div>
+  <div class="form-group">
+    <label>Email Address</label>
+    <input type="email" id="loginEmail" placeholder="Enter your email">
+  </div>
   <button onclick="login()">Login</button>
 </div>
 
 <!-- APPOINTMENT PAGE -->
 <div id="appointmentPage" class="card" style="display:none;">
-  <h2>Book Appointment</h2>
+  <h2>Book Your Appointment</h2>
 
-  <input type="text" id="name" placeholder="Patient Name">
-  <input type="email" id="email" placeholder="Email">
+  <div class="form-group">
+    <label>Patient Name</label>
+    <input type="text" id="name" placeholder="Full name">
+  </div>
 
-  <!-- Department -->
-  <select id="department" onchange="updateDoctors()">
-    <option value="">Select Department</option>
-    <option>Cardiology</option>
-    <option>Orthopedics</option>
-    <option>Neurology</option>
-    <option>Dermatology</option>
-  </select>
+  <div class="form-group">
+    <label>Email Address</label>
+    <input type="email" id="email" placeholder="your.email@example.com">
+  </div>
 
-  <!-- Doctor -->
-  <select id="doctor">
-    <option value="">Select Doctor</option>
-  </select>
+  <div class="form-group">
+    <label>Department</label>
+    <select id="department" onchange="updateDoctors()">
+      <option value="">Choose a department</option>
+      <option>Cardiology</option>
+      <option>Orthopedics</option>
+      <option>Neurology</option>
+      <option>Dermatology</option>
+    </select>
+  </div>
 
-  <!-- Date & Time -->
-  <input type="date" id="date">
-  <input type="time" id="time">
+  <div class="form-group">
+    <label>Doctor</label>
+    <select id="doctor">
+      <option value="">Select a doctor</option>
+    </select>
+  </div>
 
-  <!-- Payment -->
-  <label>Payment Method:</label>
-  <select id="payment">
-    <option>Cash</option>
-    <option>Card</option>
-  </select>
+  <div class="form-group">
+    <label>Appointment Date</label>
+    <input type="date" id="date">
+  </div>
 
-  <!-- Rating -->
-  <label>Doctor Rating:</label>
-  <select id="rating">
-    <option>5 ⭐⭐⭐⭐⭐</option>
-    <option>4 ⭐⭐⭐⭐</option>
-    <option>3 ⭐⭐⭐</option>
-    <option>2 ⭐⭐</option>
-    <option>1 ⭐</option>
-  </select>
+  <div class="form-group">
+    <label>Appointment Time</label>
+    <input type="time" id="time">
+  </div>
 
-  <!-- Review -->
-  <textarea id="review" placeholder="Write your review"></textarea>
+  <div class="form-group">
+    <label>Payment Method</label>
+    <div class="payment-options">
+      <div class="payment-option" onclick="selectPayment('Cash')">💵 Cash</div>
+      <div class="payment-option" onclick="selectPayment('Card')">💳 Card</div>
+    </div>
+  </div>
 
-  <!-- Hospital Selection -->
-  <label>Hospital Location</label>
-  <select id="hospital" onchange="changeHospital()">
-    <option value="">Select Hospital</option>
-    <option value="SVIMS Hospital">SVIMS Hospital</option>
-    <option value="Apollo Hospital">Apollo Hospital</option>
-    <option value="King George Hospital">King George Hospital</option>
-    <option value="Srikara Hospital">Srikara Hospital</option>
-    <option value="Ruiya Hospital">Ruiya Hospital</option>
-  </select>
-  <h2>Hospital Location</h2>
+  <div class="form-group">
+    <label>Rate Your Doctor</label>
+    <div class="rating-stars" id="ratingStars">
+      <span class="star" onclick="setRating(1)">★</span>
+      <span class="star" onclick="setRating(2)">★</span>
+      <span class="star" onclick="setRating(3)">★</span>
+      <span class="star" onclick="setRating(4)">★</span>
+      <span class="star" onclick="setRating(5)">★</span>
+    </div>
+  </div>
 
-<iframe
-  src="https://www.google.com/maps?q=Tirupati+Hospital&output=embed"
-  width="100%"
-  height="300"
-  style="border:0;"
-  allowfullscreen=""
-  loading="lazy">
-</iframe>
+  <div class="form-group">
+    <label>Review (Optional)</label>
+    <textarea id="review" placeholder="Share your experience with us..."></textarea>
+  </div>
+
+  <div class="form-group">
+    <label>Hospital Location</label>
+    <select id="hospital" onchange="changeHospital()">
+      <option value="">Select a hospital</option>
+      <option value="SVIMS Hospital">SVIMS Hospital</option>
+      <option value="Apollo Hospital">Apollo Hospital</option>
+      <option value="King George Hospital">King George Hospital</option>
+      <option value="Srikara Hospital">Srikara Hospital</option>
+      <option value="Ruiya Hospital">Ruiya Hospital</option>
+    </select>
+  </div>
+
+  <div class="form-group">
+    <label>Map Location</label>
+    <iframe
+      src="https://www.google.com/maps?q=Tirupati+Hospital&output=embed"
+      width="100%"
+      height="250"
+      allowfullscreen=""
+      loading="lazy">
+    </iframe>
+  </div>
 
   <button onclick="confirmAppointment()">Confirm Appointment</button>
+  <button class="logout-btn" onclick="logout()">Logout</button>
 </div>
 
 <!-- CONFIRMATION -->
 <div id="confirmation" class="card" style="display:none;">
-  <h2>✅ Appointment Confirmed</h2>
+  <div class="confirmation-icon">✅</div>
+  <h2>Appointment Confirmed!</h2>
   <p id="confMsg"></p>
+  <button onclick="bookAnother()">Book Another Appointment</button>
 </div>
 
-<script src="script.js"></script>
-<script
-  src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap"
-  async defer>
+<script>
+  let selectedPayment = '';
+  let selectedRating = 0;
+  let currentUser = { name: '', email: '' };
+
+  const doctors = {
+    'Cardiology': ['Dr. Smith', 'Dr. Johnson', 'Dr. Williams'],
+    'Orthopedics': ['Dr. Brown', 'Dr. Davis', 'Dr. Miller'],
+    'Neurology': ['Dr. Wilson', 'Dr. Moore', 'Dr. Taylor'],
+    'Dermatology': ['Dr. Anderson', 'Dr. Thomas', 'Dr. Jackson']
+  };
+
+  function login() {
+    const name = document.getElementById('loginName').value;
+    const email = document.getElementById('loginEmail').value;
+    
+    if (!name || !email) {
+      alert('Please fill in all fields');
+      return;
+    }
+    
+    currentUser = { name, email };
+    document.getElementById('name').value = name;
+    document.getElementById('email').value = email;
+    
+    document.getElementById('loginPage').style.display = 'none';
+    document.getElementById('appointmentPage').style.display = 'block';
+  }
+
+  function logout() {
+    if (confirm('Are you sure you want to logout?')) {
+      document.getElementById('appointmentPage').style.display = 'none';
+      document.getElementById('loginPage').style.display = 'block';
+      document.getElementById('loginName').value = '';
+      document.getElementById('loginEmail').value = '';
+    }
+  }
+
+  function updateDoctors() {
+    const dept = document.getElementById('department').value;
+    const doctorSelect = document.getElementById('doctor');
+    doctorSelect.innerHTML = '<option value="">Select a doctor</option>';
+    
+    if (dept && doctors[dept]) {
+      doctors[dept].forEach(doc => {
+        const option = document.createElement('option');
+        option.value = doc;
+        option.textContent = doc;
+        doctorSelect.appendChild(option);
+      });
+    }
+  }
+
+  function selectPayment(method) {
+    selectedPayment = method;
+    document.querySelectorAll('.payment-option').forEach(opt => {
+      opt.classList.remove('selected');
+    });
+    event.target.classList.add('selected');
+  }
+
+  function setRating(rating) {
+    selectedRating = rating;
+    const stars = document.querySelectorAll('.star');
+    stars.forEach((star, index) => {
+      if (index < rating) {
+        star.classList.add('active');
+      } else {
+        star.classList.remove('active');
+      }
+    });
+  }
+
+  function changeHospital() {
+    const hospital = document.getElementById('hospital').value;
+    if (hospital) {
+      const iframe = document.querySelector('iframe');
+      iframe.src = `https://www.google.com/maps?q=${encodeURIComponent(hospital + ' Tirupati')}&output=embed`;
+    }
+  }
+
+  function confirmAppointment() {
+    const name = document.getElementById('name').value;
+    const email = document.getElementById('email').value;
+    const dept = document.getElementById('department').value;
+    const doctor = document.getElementById('doctor').value;
+    const date = document.getElementById('date').value;
+    const time = document.getElementById('time').value;
+    const hospital = document.getElementById('hospital').value;
+    
+    if (!name || !email || !dept || !doctor || !date || !time || !selectedPayment || !hospital) {
+      alert('Please fill in all required fields');
+      return;
+    }
+    
+    const confMsg = `
+      <strong>Patient:</strong> ${name}<br>
+      <strong>Email:</strong> ${email}<br>
+      <strong>Department:</strong> ${dept}<br>
+      <strong>Doctor:</strong> ${doctor}<br>
+      <strong>Date:</strong> ${date}<br>
+      <strong>Time:</strong> ${time}<br>
+      <strong>Hospital:</strong> ${hospital}<br>
+      <strong>Payment:</strong> ${selectedPayment}<br>
+      ${selectedRating > 0 ? `<strong>Rating:</strong> ${'⭐'.repeat(selectedRating)}` : ''}
+    `;
+    
+    document.getElementById('confMsg').innerHTML = confMsg;
+    document.getElementById('appointmentPage').style.display = 'none';
+    document.getElementById('confirmation').style.display = 'block';
+  }
+
+  function bookAnother() {
+    document.getElementById('confirmation').style.display = 'none';
+    document.getElementById('appointmentPage').style.display = 'block';
+    
+    // Reset form
+    document.getElementById('department').value = '';
+    document.getElementById('doctor').innerHTML = '<option value="">Select a doctor</option>';
+    document.getElementById('date').value = '';
+    document.getElementById('time').value = '';
+    document.getElementById('hospital').value = '';
+    document.getElementById('review').value = '';
+    selectedPayment = '';
+    selectedRating = 0;
+    document.querySelectorAll('.payment-option').forEach(opt => opt.classList.remove('selected'));
+    document.querySelectorAll('.star').forEach(star => star.classList.remove('active'));
+  }
 </script>
 
 </body>
