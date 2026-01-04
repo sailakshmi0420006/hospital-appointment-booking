@@ -114,6 +114,12 @@
       transform: translateY(0);
     }
 
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
     .rating-stars {
       display: flex;
       gap: 10px;
@@ -180,12 +186,17 @@
     }
 
     .logout-btn {
-      background: #e74c3c;
+      background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
       margin-top: 20px;
     }
 
     .logout-btn:hover {
       box-shadow: 0 10px 25px rgba(231, 76, 60, 0.4);
+    }
+
+    .loading {
+      display: inline-block;
+      margin-left: 10px;
     }
 
     @media (max-width: 600px) {
@@ -224,12 +235,12 @@
 
   <div class="form-group">
     <label>Patient Name</label>
-    <input type="text" id="name" placeholder="Full name">
+    <input type="text" id="name" placeholder="Full name" readonly>
   </div>
 
   <div class="form-group">
     <label>Email Address</label>
-    <input type="email" id="email" placeholder="your.email@example.com">
+    <input type="email" id="email" placeholder="your.email@example.com" readonly>
   </div>
 
   <div class="form-group">
@@ -261,6 +272,18 @@
   </div>
 
   <div class="form-group">
+    <label>Hospital Location</label>
+    <select id="hospital" onchange="changeHospital()">
+      <option value="">Select a hospital</option>
+      <option value="SVIMS Hospital">SVIMS Hospital</option>
+      <option value="Apollo Hospital">Apollo Hospital</option>
+      <option value="King George Hospital">King George Hospital</option>
+      <option value="Srikara Hospital">Srikara Hospital</option>
+      <option value="Ruiya Hospital">Ruiya Hospital</option>
+    </select>
+  </div>
+
+  <div class="form-group">
     <label>Payment Method</label>
     <div class="payment-options">
       <div class="payment-option" onclick="selectPayment('Cash')">💵 Cash</div>
@@ -269,7 +292,7 @@
   </div>
 
   <div class="form-group">
-    <label>Rate Your Doctor</label>
+    <label>Rate Your Experience (Optional)</label>
     <div class="rating-stars" id="ratingStars">
       <span class="star" onclick="setRating(1)">★</span>
       <span class="star" onclick="setRating(2)">★</span>
@@ -285,20 +308,9 @@
   </div>
 
   <div class="form-group">
-    <label>Hospital Location</label>
-    <select id="hospital" onchange="changeHospital()">
-      <option value="">Select a hospital</option>
-      <option value="SVIMS Hospital">SVIMS Hospital</option>
-      <option value="Apollo Hospital">Apollo Hospital</option>
-      <option value="King George Hospital">King George Hospital</option>
-      <option value="Srikara Hospital">Srikara Hospital</option>
-      <option value="Ruiya Hospital">Ruiya Hospital</option>
-    </select>
-  </div>
-
-  <div class="form-group">
     <label>Map Location</label>
     <iframe
+      id="mapFrame"
       src="https://www.google.com/maps?q=Tirupati+Hospital&output=embed"
       width="100%"
       height="250"
@@ -307,7 +319,7 @@
     </iframe>
   </div>
 
-  <button onclick="confirmAppointment()">Confirm Appointment</button>
+  <button id="confirmBtn" onclick="confirmAppointment()">Confirm Appointment</button>
   <button class="logout-btn" onclick="logout()">Logout</button>
 </div>
 
@@ -317,12 +329,14 @@
   <h2>Appointment Confirmed!</h2>
   <p id="confMsg"></p>
   <button onclick="bookAnother()">Book Another Appointment</button>
+  <button class="logout-btn" onclick="backToLogin()">Back to Login</button>
 </div>
 
 <script>
   let selectedPayment = '';
   let selectedRating = 0;
   let currentUser = { name: '', email: '' };
+  let bookedSlots = [];
 
   const doctors = {
     'Cardiology': ['Dr. Smith', 'Dr. Johnson', 'Dr. Williams'],
@@ -331,12 +345,31 @@
     'Dermatology': ['Dr. Anderson', 'Dr. Thomas', 'Dr. Jackson']
   };
 
+  const hospitals = {
+    "SVIMS Hospital": { lat: 13.6288, lng: 79.4192 },
+    "Apollo Hospital": { lat: 13.6350, lng: 79.4100 },
+    "King George Hospital": { lat: 13.6310, lng: 79.4250 },
+    "Srikara Hospital": { lat: 13.6205, lng: 79.4220 },
+    "Ruiya Hospital": { lat: 13.6260, lng: 79.4150 }
+  };
+
+  // Set minimum date to today
+  window.onload = function() {
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('date').setAttribute('min', today);
+  };
+
   function login() {
-    const name = document.getElementById('loginName').value;
-    const email = document.getElementById('loginEmail').value;
+    const name = document.getElementById('loginName').value.trim();
+    const email = document.getElementById('loginEmail').value.trim();
     
     if (!name || !email) {
       alert('Please fill in all fields');
+      return;
+    }
+
+    if (!isValidEmail(email)) {
+      alert('Please enter a valid email address');
       return;
     }
     
@@ -350,11 +383,16 @@
 
   function logout() {
     if (confirm('Are you sure you want to logout?')) {
+      resetAll();
       document.getElementById('appointmentPage').style.display = 'none';
       document.getElementById('loginPage').style.display = 'block';
-      document.getElementById('loginName').value = '';
-      document.getElementById('loginEmail').value = '';
     }
+  }
+
+  function backToLogin() {
+    resetAll();
+    document.getElementById('confirmation').style.display = 'none';
+    document.getElementById('loginPage').style.display = 'block';
   }
 
   function updateDoctors() {
@@ -395,12 +433,29 @@
   function changeHospital() {
     const hospital = document.getElementById('hospital').value;
     if (hospital) {
-      const iframe = document.querySelector('iframe');
+      const iframe = document.getElementById('mapFrame');
       iframe.src = `https://www.google.com/maps?q=${encodeURIComponent(hospital + ' Tirupati')}&output=embed`;
     }
   }
 
-  function confirmAppointment() {
+  function isValidEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  }
+
+  function checkAvailability(doctor, date, time) {
+    const selectedTime = new Date(`${date}T${time}`);
+    
+    return bookedSlots.some(slot => {
+      if (slot.doctor !== doctor || slot.date !== date) return false;
+      
+      const bookedTime = new Date(`${slot.date}T${slot.time}`);
+      const diffMinutes = Math.abs(selectedTime - bookedTime) / (1000 * 60);
+      
+      return diffMinutes < 30;
+    });
+  }
+
+  async function confirmAppointment() {
     const name = document.getElementById('name').value;
     const email = document.getElementById('email').value;
     const dept = document.getElementById('department').value;
@@ -408,34 +463,109 @@
     const date = document.getElementById('date').value;
     const time = document.getElementById('time').value;
     const hospital = document.getElementById('hospital').value;
+    const review = document.getElementById('review').value;
     
     if (!name || !email || !dept || !doctor || !date || !time || !selectedPayment || !hospital) {
       alert('Please fill in all required fields');
       return;
     }
-    
-    const confMsg = `
-      <strong>Patient:</strong> ${name}<br>
-      <strong>Email:</strong> ${email}<br>
-      <strong>Department:</strong> ${dept}<br>
-      <strong>Doctor:</strong> ${doctor}<br>
-      <strong>Date:</strong> ${date}<br>
-      <strong>Time:</strong> ${time}<br>
-      <strong>Hospital:</strong> ${hospital}<br>
-      <strong>Payment:</strong> ${selectedPayment}<br>
-      ${selectedRating > 0 ? `<strong>Rating:</strong> ${'⭐'.repeat(selectedRating)}` : ''}
-    `;
-    
-    document.getElementById('confMsg').innerHTML = confMsg;
-    document.getElementById('appointmentPage').style.display = 'none';
-    document.getElementById('confirmation').style.display = 'block';
+
+    if (checkAvailability(doctor, date, time)) {
+      alert('⛔ This time slot is already booked. Please choose another time.');
+      return;
+    }
+
+    const confirmBtn = document.getElementById('confirmBtn');
+    confirmBtn.disabled = true;
+    confirmBtn.innerHTML = 'Processing... <span class="loading">⏳</span>';
+
+    const data = {
+      name,
+      email,
+      department: dept,
+      doctor,
+      date,
+      time,
+      hospital,
+      payment: selectedPayment,
+      rating: selectedRating || 'Not rated',
+      review: review || 'No review',
+      timestamp: new Date().toLocaleString()
+    };
+
+    try {
+      // Replace this URL with your Google Apps Script Web App URL
+      const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx0Yq_9D_QSCa8NjYII62W7Q1AhlUL4_0329C4aLuvMtPa2JJhtHLxihipzlmuvSER3/exec';
+      
+      const response = await fetch(SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+      });
+
+      bookedSlots.push({
+        doctor: data.doctor,
+        date: data.date,
+        time: data.time
+      });
+
+      const confMsg = `
+        <strong>Patient:</strong> ${name}<br>
+        <strong>Email:</strong> ${email}<br>
+        <strong>Department:</strong> ${dept}<br>
+        <strong>Doctor:</strong> ${doctor}<br>
+        <strong>Date:</strong> ${date}<br>
+        <strong>Time:</strong> ${time}<br>
+        <strong>Hospital:</strong> ${hospital}<br>
+        <strong>Payment:</strong> ${selectedPayment}<br>
+        ${selectedRating > 0 ? `<strong>Rating:</strong> ${'⭐'.repeat(selectedRating)}<br>` : ''}
+        ${review ? `<strong>Review:</strong> ${review}` : ''}
+      `;
+      
+      document.getElementById('confMsg').innerHTML = confMsg;
+      document.getElementById('appointmentPage').style.display = 'none';
+      document.getElementById('confirmation').style.display = 'block';
+
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Appointment saved locally. Note: Set up Google Sheets integration for email confirmation.');
+      
+      bookedSlots.push({
+        doctor: data.doctor,
+        date: data.date,
+        time: data.time
+      });
+
+      const confMsg = `
+        <strong>Patient:</strong> ${name}<br>
+        <strong>Email:</strong> ${email}<br>
+        <strong>Department:</strong> ${dept}<br>
+        <strong>Doctor:</strong> ${doctor}<br>
+        <strong>Date:</strong> ${date}<br>
+        <strong>Time:</strong> ${time}<br>
+        <strong>Hospital:</strong> ${hospital}<br>
+        <strong>Payment:</strong> ${selectedPayment}<br>
+        ${selectedRating > 0 ? `<strong>Rating:</strong> ${'⭐'.repeat(selectedRating)}<br>` : ''}
+        ${review ? `<strong>Review:</strong> ${review}` : ''}
+      `;
+      
+      document.getElementById('confMsg').innerHTML = confMsg;
+      document.getElementById('appointmentPage').style.display = 'none';
+      document.getElementById('confirmation').style.display = 'block';
+    } finally {
+      confirmBtn.disabled = false;
+      confirmBtn.innerHTML = 'Confirm Appointment';
+    }
   }
 
   function bookAnother() {
     document.getElementById('confirmation').style.display = 'none';
     document.getElementById('appointmentPage').style.display = 'block';
     
-    // Reset form
+    // Reset form but keep user data
     document.getElementById('department').value = '';
     document.getElementById('doctor').innerHTML = '<option value="">Select a doctor</option>';
     document.getElementById('date').value = '';
@@ -444,6 +574,23 @@
     document.getElementById('review').value = '';
     selectedPayment = '';
     selectedRating = 0;
+    document.querySelectorAll('.payment-option').forEach(opt => opt.classList.remove('selected'));
+    document.querySelectorAll('.star').forEach(star => star.classList.remove('active'));
+    document.getElementById('mapFrame').src = 'https://www.google.com/maps?q=Tirupati+Hospital&output=embed';
+  }
+
+  function resetAll() {
+    document.getElementById('loginName').value = '';
+    document.getElementById('loginEmail').value = '';
+    document.getElementById('department').value = '';
+    document.getElementById('doctor').innerHTML = '<option value="">Select a doctor</option>';
+    document.getElementById('date').value = '';
+    document.getElementById('time').value = '';
+    document.getElementById('hospital').value = '';
+    document.getElementById('review').value = '';
+    selectedPayment = '';
+    selectedRating = 0;
+    currentUser = { name: '', email: '' };
     document.querySelectorAll('.payment-option').forEach(opt => opt.classList.remove('selected'));
     document.querySelectorAll('.star').forEach(star => star.classList.remove('active'));
   }
