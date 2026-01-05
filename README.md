@@ -1,2 +1,2 @@
-# hospital-appointment-booking
-Hospital appointment booking website
+Hospital Appointment Booking Website
+This project is a web-based Hospital Appointment Booking system that allows users to book doctor appointments online. Users can log in, select a hospital, department, doctor, date, and time, and confirm their appointment. The system checks doctor availability, prevents double bookings, stores appointment details in Google Sheets, and sends confirmation emails to users via Gmail using Google Apps Script. Google Maps is integrated to show hospital locations. This project uses HTML, CSS, JavaScript, Google Sheets, Google Maps API, and Google Apps Script.
